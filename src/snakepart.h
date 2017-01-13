@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------------------------
 //
-// File: User.h
+// File: snakepart.h
 // Author: Chris Druta
-// Date: December 05, 2016
+// Date: January 12, 2017
 //
-// Description: contains User class declarations
+// Description: contains snakepart class functions
 //
 //------------------------------------------------------------------------------------------------
 

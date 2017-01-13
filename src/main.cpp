@@ -5,29 +5,32 @@
 * Author: Chris Druta
 * Date: 12-23-16
 *
-* Description: sna takes in data of twitter uses and creates a graph from the data. It then performs a social network analysis,
-* reccomending people to follow given an input username.
+* Description: Snake game written in C++ using ncurses
 *
 */
 
 /**********************************************************************************/
 
 #include <iostream>
+#include <unistd.h>
 #include <ncurses.h>
 #include "snake.h"
 
 /**********************************************************************************/
 
 void startScreen(int yMax, int xMax);
-void updateScore(WINDOW* scoreWin, int currScore, int highScore);
+void updateScore(WINDOW* scoreWin, int& currScore, int& highScore);
+char getDirection(WINDOW* gameWin);
 
 /**********************************************************************************/
 
 int main(){
 
 	initscr();
-	curs_set(FALSE);
+	curs_set(false);
+	keypad(stdscr, true);
 	noecho();
+	cbreak();
 
 	int xMax, yMax;
 	getmaxyx(stdscr, yMax, xMax);
@@ -49,16 +52,20 @@ int main(){
 	Snake snake(yMax - 6, xMax - 2);
 
 	snake.drawSnake();
+	usleep(1000000);
 
-	mvprintw(3, 3, "Vector Size: %d", snake.getVector().size());
+	char direction = 'r';
 
-	getch();
-
+	//nodelay(stdscr, true);
 	while(1) {
+
+		direction = getDirection(gameBorder);
+		if(direction == 'r' || direction == 'l' || direction == 'u' || direction == 'd')
+			snake.setDirection(direction);
 		snake.moveSnake();
 		snake.drawSnake();
 
-		getch();
+		usleep(100000);
 	}
 
 
@@ -100,7 +107,7 @@ void startScreen(int yMax, int xMax) {
 	return;
 }
 
-void updateScore(WINDOW* scoreWin, int currScore, int highScore) {
+void updateScore(WINDOW* scoreWin, int& currScore, int& highScore) {
 
 	wattron(scoreWin, A_BOLD);
 
@@ -111,4 +118,36 @@ void updateScore(WINDOW* scoreWin, int currScore, int highScore) {
 	wattroff(scoreWin, A_BOLD);
 
 	return;
+}
+
+char getDirection(WINDOW* gameWin) {
+	cbreak();
+	keypad(stdscr, true);
+	nodelay(stdscr, true);
+	int input;
+	char direction;
+
+	input = getch();
+
+	switch(input) {
+		case KEY_UP:
+			direction = 'u';
+			break;
+		case KEY_DOWN:
+			direction = 'd';
+			break;
+		case KEY_LEFT:
+			direction = 'l';
+			break;
+		case KEY_RIGHT:
+			direction = 'r';
+			break;
+		default:
+			direction = 'x';
+			break;
+	}
+
+	flushinp();
+
+	return direction;
 }

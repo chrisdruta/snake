@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------------------------
 //
-// File: User.h
+// File: snake.h
 // Author: Chris Druta
-// Date: December 05, 2016
+// Date: January 12, 2017
 //
-// Description: contains User class declarations
+// Description: contains snake class declarations
 //
 //------------------------------------------------------------------------------------------------
 
@@ -31,6 +31,8 @@ public:
 
 	void moveSnake();
 	void drawSnake();
+
+	void setDirection(char dir);
 
 	std::vector<SnakePart>& getVector();
 };
