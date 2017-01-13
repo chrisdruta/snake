@@ -5,12 +5,13 @@ Most logic is in the Snake class. The Snake class has a vector of SnakePart obje
 
 # requirements
 ncurses
+
 cmake (min version 3.1)
 
 # compile instructions
-1) Clone src folder
+1) Clone repository (git clone *insret link here*)
 
-2) Make a directory called "build" in the same folder "src" is and cd into "build"
+2) Make a directory called "build" in the cloned repository folder  and cd into "build"
 
 3) Run 'cmake ..' and then 'make'
 
