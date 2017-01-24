@@ -18,6 +18,7 @@ Snake::Snake(int yMax, int xMax) {
 	this->maxWidth = xMax;
 
 	this->bodyChar = 'o';
+	this->foodChar = 'X';
 	this->direction = 'r';
 
 	this->grow = false;
@@ -31,10 +32,47 @@ Snake::Snake(int yMax, int xMax) {
 	gameWin = newwin(this->maxHeight, this->maxWidth, 1, 1);
 	wrefresh(gameWin); refresh();
 
+	srand(time(NULL));
+	makeFood();
+	drawFood();
 }
 
 Snake::Snake() {
 	//Nothing to do here....
+}
+
+void Snake::makeFood() {
+
+	int xPos = rand() % this->maxWidth;
+	int yPos = rand() % this->maxHeight;
+
+	int i;
+	bool isUnique = true;
+
+	this->food = SnakePart(yPos, xPos);
+
+	do {
+		isUnique = true;
+
+		for (i = 0; i < (int) this->snake.size(); i++) {
+			if (this->food == this->snake.at(i))
+				isUnique = false;
+		}
+
+		if (!isUnique) {
+			this->food.setX(rand() % this->maxWidth);
+			this->food.setY(rand() % this->maxHeight);
+		}
+	} while (!isUnique);
+
+	return;
+}
+
+void Snake::drawFood() {
+	mvwaddch(this->gameWin, this->food.getY(), this->food.getX(), this->foodChar);
+	wrefresh(this->gameWin); refresh();
+
+	return;
 }
 
 void Snake::moveSnake() {
@@ -71,6 +109,11 @@ void Snake::moveSnake() {
 		yTemp2 = yTemp1;
 	}
 
+	if (this->grow) {
+		this->snake.push_back(SnakePart(yTemp2, xTemp2));
+		this->grow = false;
+	}
+
 	return;
 }
 
@@ -85,9 +128,63 @@ void Snake::drawSnake() {
 	return;
 }
 
-void Snake::setDirection(char dir) {
+int Snake::checkCol() { //0 means no collision, 1 means edge/self, 2 means food
+	if (this->snake.at(0).getX() == 0 || this->snake.at(0).getX() == maxWidth)
+		return 1;
 
+	else if (this->snake.at(0).getY() == 0 || this->snake.at(0).getY() == maxHeight)
+		return 1;
+
+	else if (this->snake.at(0).getY() == this->food.getY() && this->snake.at(0).getX() == this->food.getX())
+		return 2;
+
+	for (int i = 1; i < (int) this->snake.size(); i++) {
+		if (this->snake.at(0) == this->snake.at(i))
+			return 1;
+	}
+
+	return 0;
+}
+
+void Snake::growSnake() {
+	setGrow(true);
+
+	return;
+}
+
+void Snake::setDirection(char dir) {
 	this->direction = dir;
+
+	return;
+}
+
+char& Snake::getDirection() {
+	return this->direction;
+}
+
+void Snake::setGrow(bool grow) {
+	this->grow = true;
+
+	return;
+}
+
+bool Snake::getGrow() {
+	return this->grow;
+}
+
+
+//DEBUG
+void Snake::printSnakePos() {
+	mvwprintw(this->gameWin, maxHeight - 2, 2, "%d, %d", this->snake.at(0).getX(), this->snake.at(0).getY());
+	wrefresh(this->gameWin); refresh();
+
+	return;
+}
+
+void Snake::printFoodPos() {
+	mvwprintw(this->gameWin, 2, 2, "%d, %d", this->food.getX(), this->food.getY());
+	wrefresh(this->gameWin); refresh();
+
 	return;
 }
 

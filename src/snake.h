@@ -13,6 +13,8 @@
 
 #include <vector>
 #include <ncurses.h>
+#include <stdlib.h>
+#include <time.h>
 #include "snakepart.h"
 
 /**********************************************************************************/
@@ -20,7 +22,8 @@
 class Snake {
 private:
 	int maxHeight, maxWidth;
-	char bodyChar, direction;
+	char bodyChar, foodChar, direction;
+	SnakePart food;
 	bool grow;
 	std::vector<SnakePart> snake;
 	WINDOW* gameWin;
@@ -29,11 +32,25 @@ public:
 	Snake(int yMax, int xMax);
 	Snake(); //deafult constructor
 
+	void makeFood();
+	void drawFood();
+
 	void moveSnake();
 	void drawSnake();
 
-	void setDirection(char dir);
+	void growSnake();
+	int checkCol();
 
+	//setters and getters
+	void setDirection(char dir);
+	char& getDirection();
+
+	void setGrow(bool grow);
+	bool getGrow();
+
+	//DEBUG functions
+	void printSnakePos();
+	void printFoodPos();
 	std::vector<SnakePart>& getVector();
 };
 

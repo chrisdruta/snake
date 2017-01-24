@@ -14,13 +14,14 @@
 #include <iostream>
 #include <unistd.h>
 #include <ncurses.h>
+#include "timer.h"
 #include "snake.h"
 
 /**********************************************************************************/
 
 void startScreen(int yMax, int xMax);
-void updateScore(WINDOW* scoreWin, int& currScore, int& highScore);
-char getDirection(WINDOW* gameWin);
+void updateScore(WINDOW* scoreWin, int& currScore, int& highScore, bool incPnts);
+char getDirection(WINDOW* gameWin, char& direction);
 
 /**********************************************************************************/
 
@@ -38,6 +39,7 @@ int main(){
 	startScreen(yMax, xMax);
 
 	int currScore = 0, highScore = 0;
+	unsigned int speed = 100000;
 
 	WINDOW* scoreWin = newwin(4, xMax, yMax - 4, 0);
 	WINDOW* gameBorder = newwin(yMax - 4, xMax, 0, 0);
@@ -46,7 +48,7 @@ int main(){
 	box(gameBorder, 0, 0);
 	wrefresh(gameBorder);
 
-	updateScore(scoreWin, currScore, highScore);
+	updateScore(scoreWin, currScore, highScore, false);
 	refresh();
 
 	Snake snake(yMax - 6, xMax - 2);
@@ -59,16 +61,32 @@ int main(){
 	//nodelay(stdscr, true);
 	while(1) {
 
-		direction = getDirection(gameBorder);
-		if(direction == 'r' || direction == 'l' || direction == 'u' || direction == 'd')
-			snake.setDirection(direction);
+		//updateScore(scoreWin, currScore, highScore);
+
+		direction = getDirection(gameBorder, snake.getDirection());
+		snake.setDirection(direction);
 		snake.moveSnake();
+
+		if (snake.checkCol() == 1)
+			startScreen(yMax, xMax);
+
+		else if (snake.checkCol() == 2) {
+			snake.growSnake();
+			updateScore(scoreWin, currScore, highScore, true);
+		}
+
 		snake.drawSnake();
+		snake.drawFood();
 
-		usleep(100000);
+		//Debug
+		snake.printSnakePos();
+		snake.printFoodPos();
+
+		if (snake.getDirection() == 'u' || snake.getDirection() == 'd')
+			usleep(speed * 1.4);
+		else
+			usleep(speed);
 	}
-
-
 
 	endwin();
 
@@ -107,7 +125,10 @@ void startScreen(int yMax, int xMax) {
 	return;
 }
 
-void updateScore(WINDOW* scoreWin, int& currScore, int& highScore) {
+void updateScore(WINDOW* scoreWin, int& currScore, int& highScore, bool incPnts) {
+
+	if (incPnts)
+		currScore++;
 
 	wattron(scoreWin, A_BOLD);
 
@@ -120,30 +141,30 @@ void updateScore(WINDOW* scoreWin, int& currScore, int& highScore) {
 	return;
 }
 
-char getDirection(WINDOW* gameWin) {
+char getDirection(WINDOW* gameWin, char&  direction) {
 	cbreak();
 	keypad(stdscr, true);
 	nodelay(stdscr, true);
 	int input;
-	char direction;
 
 	input = getch();
 
 	switch(input) {
 		case KEY_UP:
-			direction = 'u';
+			if (direction != 'd')
+				direction = 'u';
 			break;
 		case KEY_DOWN:
-			direction = 'd';
+			if (direction != 'u')
+				direction = 'd';
 			break;
 		case KEY_LEFT:
-			direction = 'l';
+			if (direction != 'r')
+				direction = 'l';
 			break;
 		case KEY_RIGHT:
-			direction = 'r';
-			break;
-		default:
-			direction = 'x';
+			if (direction != 'l')
+				direction = 'r';
 			break;
 	}
 
