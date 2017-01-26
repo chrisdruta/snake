@@ -19,19 +19,32 @@
 
 /**********************************************************************************/
 
+//Main stuff
 void startScreen(int yMax, int xMax);
 void updateScore(WINDOW* scoreWin, int& currScore, int& highScore, bool incPnts);
+void loseScreen(int yMax, int xMax);
+
 char getDirection(WINDOW* gameWin, char& direction);
+
+//DEBUG
+void printTimeBool(Timer& timer);
 
 /**********************************************************************************/
 
 int main(){
 
 	initscr();
+	setlocale(LC_CTYPE,"C-UTF-8");
 	curs_set(false);
 	keypad(stdscr, true);
 	noecho();
 	cbreak();
+
+	//ncurse colors
+	start_color();
+	use_default_colors(); //enable background
+
+	init_pair(1, 1, 1);
 
 	int xMax, yMax;
 	getmaxyx(stdscr, yMax, xMax);
@@ -58,10 +71,10 @@ int main(){
 
 	char direction = 'r';
 
+	Timer time5(1);
+
 	//nodelay(stdscr, true);
 	while(1) {
-
-		//updateScore(scoreWin, currScore, highScore);
 
 		direction = getDirection(gameBorder, snake.getDirection());
 		snake.setDirection(direction);
@@ -73,14 +86,25 @@ int main(){
 		else if (snake.checkCol() == 2) {
 			snake.growSnake();
 			updateScore(scoreWin, currScore, highScore, true);
+			snake.removeFood();
+			//snake.delFood();// causing error
+			time5.startThread();
 		}
 
 		snake.drawSnake();
-		snake.drawFood();
+		if (!time5.isTime())
+			snake.drawFood();
+		else {
+			snake.moveFood();
+			snake.drawFood();
+			time5.stopThread();
+		}
 
 		//Debug
 		snake.printSnakePos();
-		snake.printFoodPos();
+		printTimeBool(time5);
+		if (!time5.isTime())
+			snake.printFoodPos();
 
 		if (snake.getDirection() == 'u' || snake.getDirection() == 'd')
 			usleep(speed * 1.4);
@@ -171,4 +195,12 @@ char getDirection(WINDOW* gameWin, char&  direction) {
 	flushinp();
 
 	return direction;
+}
+
+//DEBUG
+void printTimeBool(Timer& timer) {
+	mvwprintw(stdscr, 2, 12, "%d", timer.isTime());
+	refresh();
+
+	return;
 }

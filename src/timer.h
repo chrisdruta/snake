@@ -11,15 +11,18 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <thread>
+#include <unistd.h>
 #include <time.h>
+#include <thread>
+
 
 /**********************************************************************************/
 
 class Timer {
 private:
 	std::thread _thread;
-	long unsigned int time;
+	unsigned int timeSec;
+	bool timePass;
 
 public:
 	Timer(int sec);
@@ -27,7 +30,10 @@ public:
 	void start();
 	void stop();
 
+	void startThread();
+	void stopThread();
 
+	bool isTime();
 };
 
 #endif

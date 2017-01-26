@@ -17,7 +17,7 @@ Snake::Snake(int yMax, int xMax) {
 	this->maxHeight = yMax;
 	this->maxWidth = xMax;
 
-	this->bodyChar = 'o';
+	this->bodyChar = 'O';
 	this->foodChar = 'X';
 	this->direction = 'r';
 
@@ -30,50 +30,16 @@ Snake::Snake(int yMax, int xMax) {
 	}
 
 	gameWin = newwin(this->maxHeight, this->maxWidth, 1, 1);
+
 	wrefresh(gameWin); refresh();
 
-	srand(time(NULL));
 	makeFood();
-	drawFood();
 }
 
 Snake::Snake() {
 	//Nothing to do here....
 }
 
-void Snake::makeFood() {
-
-	int xPos = rand() % this->maxWidth;
-	int yPos = rand() % this->maxHeight;
-
-	int i;
-	bool isUnique = true;
-
-	this->food = SnakePart(yPos, xPos);
-
-	do {
-		isUnique = true;
-
-		for (i = 0; i < (int) this->snake.size(); i++) {
-			if (this->food == this->snake.at(i))
-				isUnique = false;
-		}
-
-		if (!isUnique) {
-			this->food.setX(rand() % this->maxWidth);
-			this->food.setY(rand() % this->maxHeight);
-		}
-	} while (!isUnique);
-
-	return;
-}
-
-void Snake::drawFood() {
-	mvwaddch(this->gameWin, this->food.getY(), this->food.getX(), this->foodChar);
-	wrefresh(this->gameWin); refresh();
-
-	return;
-}
 
 void Snake::moveSnake() {
 	int xTemp1 = this->snake.at(0).getX();
@@ -129,10 +95,10 @@ void Snake::drawSnake() {
 }
 
 int Snake::checkCol() { //0 means no collision, 1 means edge/self, 2 means food
-	if (this->snake.at(0).getX() == 0 || this->snake.at(0).getX() == maxWidth)
+	if (this->snake.at(0).getX() == -1 || this->snake.at(0).getX() == maxWidth + 1)
 		return 1;
 
-	else if (this->snake.at(0).getY() == 0 || this->snake.at(0).getY() == maxHeight)
+	else if (this->snake.at(0).getY() == -1 || this->snake.at(0).getY() == maxHeight + 1)
 		return 1;
 
 	else if (this->snake.at(0).getY() == this->food.getY() && this->snake.at(0).getX() == this->food.getX())
@@ -172,6 +138,101 @@ bool Snake::getGrow() {
 	return this->grow;
 }
 
+void Snake::makeFood() {
+
+	int xPos = rand() % this->maxWidth - 1;
+	int yPos = rand() % this->maxHeight - 1;
+
+	if (xPos <= 0)
+		xPos++;
+	if (yPos <= 0)
+		yPos++;
+
+	int i;
+	bool isUnique = true;
+
+	this->food = SnakePart(yPos, xPos);
+
+	do {
+		isUnique = true;
+
+		for (i = 0; i < (int) this->snake.size(); i++) {
+			if (this->food == this->snake.at(i))
+				isUnique = false;
+		}
+
+		if (!isUnique) {
+
+			xPos = rand() % this->maxWidth - 1;
+			yPos = rand() % this->maxHeight - 1;
+
+			if (xPos <= 0)
+				xPos++;
+			if (yPos <= 0)
+				yPos++;
+
+			this->food.setXY(xPos, yPos);
+		}
+	} while (!isUnique);
+
+	return;
+}
+
+void Snake::drawFood() {
+	attron(COLOR_PAIR(1));
+	mvwaddch(this->gameWin, this->food.getY(), this->food.getX(), this->foodChar);
+	wrefresh(this->gameWin); refresh();
+	attroff(COLOR_PAIR(1));
+
+	return;
+}
+
+void Snake::moveFood() {
+
+	int xPos = rand() % this->maxWidth - 1;
+	int yPos = rand() % this->maxHeight - 1;
+
+	if (xPos <= 0)
+		xPos++;
+	if (yPos <= 0)
+		yPos++;
+
+	int i;
+	bool isUnique = true;
+
+	this->food.setXY(xPos, yPos);
+
+	do {
+		isUnique = true;
+
+		for (i = 0; i < (int) this->snake.size(); i++) {
+			if (this->food == this->snake.at(i))
+				isUnique = false;
+		}
+
+		if (!isUnique) {
+
+			xPos = rand() % this->maxWidth - 1;
+			yPos = rand() % this->maxHeight - 1;
+
+			if (xPos <= 0)
+				xPos++;
+			if (yPos <= 0)
+				yPos++;
+
+			this->food.setXY(xPos, yPos);
+		}
+	} while (!isUnique);
+
+	return;
+}
+
+void Snake::removeFood() {
+	this->food.setXY(-5, -5); //move to unreachable place
+
+	return;
+}
+
 
 //DEBUG
 void Snake::printSnakePos() {
@@ -180,6 +241,7 @@ void Snake::printSnakePos() {
 
 	return;
 }
+
 
 void Snake::printFoodPos() {
 	mvwprintw(this->gameWin, 2, 2, "%d, %d", this->food.getX(), this->food.getY());
