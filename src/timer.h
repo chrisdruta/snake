@@ -1,34 +1,39 @@
 //------------------------------------------------------------------------------------------------
 //
-// File: snakepart.h
+// File: timer.h
 // Author: Chris Druta
-// Date: January 12, 2017
+// Date: January 23, 2017
 //
-// Description: contains snakepart class functions
+// Description: contains timer class functions
 //
 //------------------------------------------------------------------------------------------------
 
-#ifndef SNAKEPART_H
-#define SNAKEPART_H
+#ifndef TIMER_H
+#define TIMER_H
+
+#include <unistd.h>
+#include <time.h>
+#include <thread>
+
 
 /**********************************************************************************/
 
-class SnakePart {
+class Timer {
 private:
-	int xPos, yPos;
+	std::thread _thread;
+	unsigned int timeSec;
+	bool timePass;
 
 public:
-	SnakePart(int yPos, int xPos);
-	SnakePart(); //deafult constructor
+	Timer(int sec);
 
-	int getX();
-	int getY();
-	void setX(int xPos);
-	void setY(int yPos);
-	void setXY(int xPos, int yPos);
+	void start();
+	void stop();
 
-	bool operator==(const SnakePart& rhs) const;
+	void startThread();
+	void stopThread();
 
+	bool isTime();
 };
 
 #endif

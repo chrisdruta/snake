@@ -45,3 +45,11 @@ void SnakePart::setXY(int xPos, int yPos) {
 
 	return;
 }
+
+bool SnakePart::operator==(const SnakePart& rhs) const {
+	if (this->yPos == rhs.yPos && this->xPos == rhs.xPos)
+		return true;
+		
+	else
+		return false;
+}
