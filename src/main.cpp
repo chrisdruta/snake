@@ -22,7 +22,7 @@
 //Main stuff
 void startScreen(int yMax, int xMax);
 void updateScore(WINDOW* scoreWin, int& currScore, int& highScore, bool incPnts);
-void loseScreen(int yMax, int xMax);
+void gameOver(int yMax, int xMax);
 
 char getDirection(WINDOW* gameWin, char& direction);
 
@@ -40,19 +40,13 @@ int main(){
 	noecho();
 	cbreak();
 
-	//ncurse colors
-	start_color();
-	use_default_colors(); //enable background
-
-	init_pair(1, 1, 1);
-
 	int xMax, yMax;
 	getmaxyx(stdscr, yMax, xMax);
 
 	startScreen(yMax, xMax);
 
 	int currScore = 0, highScore = 0;
-	unsigned int speed = 100000;
+	unsigned int speed = 100000; //game clock
 
 	WINDOW* scoreWin = newwin(4, xMax, yMax - 4, 0);
 	WINDOW* gameBorder = newwin(yMax - 4, xMax, 0, 0);
@@ -64,49 +58,53 @@ int main(){
 	updateScore(scoreWin, currScore, highScore, false);
 	refresh();
 
+	//Creating snake object for specific screen size
 	Snake snake(yMax - 6, xMax - 2);
 
 	snake.drawSnake();
 	usleep(1000000);
 
-	char direction = 'r';
+	char direction = 'r'; //initial direction for snake
 
-	Timer time5(1);
+	Timer timer(1);
 
 	//nodelay(stdscr, true);
-	while(1) {
+	while(1) { //game loop
 
+		//getting user input direction
 		direction = getDirection(gameBorder, snake.getDirection());
 		snake.setDirection(direction);
 		snake.moveSnake();
 
+		//collision checking
 		if (snake.checkCol() == 1)
-			startScreen(yMax, xMax);
+			snake.gameOver();
 
 		else if (snake.checkCol() == 2) {
 			snake.growSnake();
 			updateScore(scoreWin, currScore, highScore, true);
 			snake.removeFood();
 			//snake.delFood();// causing error
-			time5.startThread();
+			timer.startThread();
 		}
 
+		//food mangament
 		snake.drawSnake();
-		if (!time5.isTime())
+		if (!timer.isTime())
 			snake.drawFood();
 		else {
 			snake.moveFood();
 			snake.drawFood();
-			time5.stopThread();
+			timer.stopThread();
 		}
 
 		//Debug
 		snake.printSnakePos();
-		printTimeBool(time5);
-		if (!time5.isTime())
+		printTimeBool(timer);
+		if (!timer.isTime())
 			snake.printFoodPos();
 
-		if (snake.getDirection() == 'u' || snake.getDirection() == 'd')
+		if (snake.getDirection() == 'u' || snake.getDirection() == 'd') //vert speed is lowered for spacing
 			usleep(speed * 1.4);
 		else
 			usleep(speed);
@@ -147,6 +145,10 @@ void startScreen(int yMax, int xMax) {
 	clear(); refresh();
 
 	return;
+}
+
+void gameOver(int yMax, int xMax) {
+
 }
 
 void updateScore(WINDOW* scoreWin, int& currScore, int& highScore, bool incPnts) {
