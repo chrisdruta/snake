@@ -17,13 +17,16 @@ Timer::Timer(int sec) {
 	this->timePass = false;
 }
 
+Timer::Timer() {
+	//Nothing to do here...
+}
+
 void Timer::start() {
 	usleep(timeSec * 1000000);
 	this->timePass = true;
 	//this->_thread.join();
-	usleep(100001);
+	//usleep(100001);
 	//this->_thread.join();
-
 
 	return;
 }

@@ -26,9 +26,10 @@ private:
 
 public:
 	Timer(int sec);
+	Timer();
 
 	void start();
-	void stop();
+	//void stop();
 
 	void startThread();
 	void stopThread();
